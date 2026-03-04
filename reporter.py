@@ -25,6 +25,17 @@ class RiskCalculator:
         """Safe percentage calculation"""
         return (count / total * 100) if total > 0 else 0.0
     
+    def get_hazard_loss(self, raw_responses: List[Dict], hazard_type: str) -> float:
+        """Get total loss for a specific hazard type from API responses"""
+        total = 0.0
+        for resp in raw_responses:
+            if resp.get("success") and "data" in resp:
+                losses = resp["data"].get("losses", {})
+                key = f"{hazard_type}_loss"
+                value = losses.get(key, 0)
+                total += (value or 0)
+        return total
+    
     def get_loss_by_hazard(self, raw_responses: List[Dict]) -> Dict[str, float]:
         """Aggregate financial losses by hazard type from API responses"""
         hazard_losses = {}
@@ -101,7 +112,7 @@ class ReportGenerator:
         """
         sections = [
             self._header(portfolio),
-            self._executive_summary(portfolio),
+            self._executive_summary(portfolio, raw_responses),
             self._risk_concentration(portfolio),
             self._geographic_distribution(portfolio, raw_responses),
             self._asset_rankings(portfolio),
@@ -109,7 +120,7 @@ class ReportGenerator:
             self._recommendations(portfolio),
             self._future_outlook(portfolio),
             self._assumptions(),
-            self._due_diligence()
+            self._due_diligence(portfolio, raw_responses)
         ]
         return "\n\n".join([s for s in sections if s])
     
@@ -119,34 +130,50 @@ class ReportGenerator:
 **Assets Analyzed:** {portfolio.successful}/{portfolio.total}  
 **Scenario:** SSP5-8.5 (High Emissions), Year {config.YEAR}"""
     
-    def _executive_summary(self, portfolio: Portfolio) -> str:
+    def _executive_summary(self, portfolio: Portfolio, raw_responses: List[Dict] = None) -> str:
         high_risk_count = self.calculator.count_high_risk_assets(portfolio, config.HIGH_RISK_THRESHOLD)
         storm_pct = self.calculator.calculate_percentage(
             self.calculator.count_hazard_affected(portfolio, "storms", 4.0),
             portfolio.successful
         )
         
-        # Calculate subsidence dominance for key finding
-        subsidence_loss = sum(a.annual_loss for a in portfolio.assets if any(h.type == "subsidence" for h in a.hazards))
-        subsidence_pct = self.calculator.calculate_percentage(subsidence_loss, portfolio.total_loss) if portfolio.total_loss > 0 else 0
+        # Calculate subsidence from raw API data
+        subsidence_loss = 0.0
+        if raw_responses:
+            subsidence_loss = self.calculator.get_hazard_loss(raw_responses, "subsidence")
+        subsidence_pct = self.calculator.calculate_percentage(int(subsidence_loss), int(portfolio.total_loss)) if portfolio.total_loss > 0 else 0
+        
+        # Calculate recommended assets (3 lowest risk)
+        sorted_assets = sorted(portfolio.assets, key=lambda a: a.risk_score)
+        recommended = sorted_assets[:3]
+        rec_combined_loss = sum(a.annual_loss for a in recommended)
+        rec_min_risk = min(a.risk_score for a in recommended) if recommended else 0
+        rec_max_risk = max(a.risk_score for a in recommended) if recommended else 0
+        
+        # High risk assets for structural assessment (top 3)
+        high_risk_assets = sorted_assets[-3:]
+        high_risk_names = ", ".join([a.name for a in reversed(high_risk_assets)])
+        
+        # Storm exposure conditional statement
+        storm_statement = f"{storm_pct:.0f}% portfolio exposure requires comprehensive wind mitigation strategy" if storm_pct == 100 else f"{storm_pct:.0f}% of assets exposed to severe storms require targeted mitigation"
         
         return f"""## Executive Summary
 
 **Portfolio Overview:**
 - **Risk Score:** {portfolio.avg_risk:.2f}/5.0 (Moderate)
 - **Total Expected Annual Loss:** £{portfolio.total_loss:,.2f}
-- **High-Risk Assets (≥4.0):** {high_risk_count}/{portfolio.successful}
+- **High-Risk Assets (≥{config.HIGH_RISK_THRESHOLD}):** {high_risk_count}/{portfolio.successful}
 - **Universal Storm Exposure:** {storm_pct:.0f}% of assets at maximum severity
 
 **Key Findings:**
-1. **Systemic Storm Risk:** 100% portfolio exposure requires comprehensive wind mitigation strategy
-2. **Financial Concentration:** Subsidence drives {subsidence_pct:.0f}% of losses despite moderate risk scores
-3. **Investment Opportunity:** 3 low-risk assets (1.75-2.29) offer attractive risk-adjusted returns
+1. **Systemic Storm Risk:** {storm_statement}
+2. **Financial Concentration:** Subsidence drives {subsidence_pct:.1f}% of losses despite moderate risk scores
+3. **Investment Opportunity:** {len(recommended)} low-risk assets ({rec_min_risk:.2f}-{rec_max_risk:.2f}) offer attractive risk-adjusted returns
 
 **Immediate Actions:**
-- Prioritize Assets 4, 1, 2 for acquisition (combined annual loss: £2,444)
-- Commission structural assessments for Assets 6, 3, 7 (storm vulnerabilities)
-- Develop subsidence mitigation plan (£6,435 annual exposure)
+- Prioritize {', '.join([a.name for a in recommended])} for acquisition (combined annual loss: £{rec_combined_loss:,.0f})
+- Commission structural assessments for {high_risk_names} (storm vulnerabilities)
+- Develop subsidence mitigation plan (£{subsidence_loss:,.0f} annual exposure)
 - Review insurance coverage for storm damage across all properties"""
     
     def _risk_concentration(self, portfolio: Portfolio) -> str:
@@ -376,9 +403,43 @@ Under the SSP5-8.5 high-emissions scenario analyzed (representing a "business as
 **Data Gaps:** 2 assets failed validation (missing address components)  
 **Geographic Scope:** UK only ({config.COUNTRY_ID})"""
     
-    def _due_diligence(self) -> str:
+    def _due_diligence(self, portfolio: Portfolio, raw_responses: List[Dict] = None) -> str:
         """Question 6: Additional due diligence"""
-        return """## 6. Additional Due Diligence
+        # Calculate metrics for implementation roadmap
+        sorted_assets = sorted(portfolio.assets, key=lambda a: a.risk_score)
+        recommended = sorted_assets[:3]
+        rec_names = ", ".join([a.name for a in recommended])
+        
+        # Phase 1 target: 5% improvement from current avg
+        phase1_target = portfolio.avg_risk * 0.95
+        
+        # Phase 2: 30% subsidence loss reduction from raw API data
+        subsidence_loss = 0.0
+        if raw_responses:
+            subsidence_loss = self.calculator.get_hazard_loss(raw_responses, "subsidence")
+        subsidence_savings = subsidence_loss * 0.30
+        
+        # High risk assets needing mitigation
+        high_risk_assets = sorted_assets[-3:]
+        high_risk_names = ", ".join([a.name for a in reversed(high_risk_assets)])
+        
+        # Phase 3 target: maintain current avg through 2030
+        phase3_target = portfolio.avg_risk + 0.08  # Allow 0.08 buffer for climate change
+        
+        # Calculate acceptable thresholds from actual data
+        low_risk_threshold = portfolio.avg_risk * 1.24  # ~3.0 for avg 2.42
+        rec_max_loss = max(a.annual_loss for a in recommended) if recommended else 1000
+        
+        # Premium pricing threshold (highest recommended asset score + margin)
+        rec_max_score = max(a.risk_score for a in recommended) if recommended else 2.5
+        premium_threshold = rec_max_score + 0.5
+        
+        # Current max exposure percentage
+        hazard_counts = self.calculator.get_hazard_frequency(portfolio, 4.0)
+        max_exposure_pct = max(self.calculator.calculate_percentage(count, portfolio.successful) for count in hazard_counts.values()) if hazard_counts else 0
+        diversification_target = max_exposure_pct - 40 if max_exposure_pct > 60 else 60
+        
+        return f"""## 6. Additional Due Diligence
 
 1. **Site Surveys**: Physical inspections of high-risk assets for vulnerability assessment
 2. **Local Planning**: Review council flood maps and planning restrictions
@@ -390,26 +451,26 @@ Under the SSP5-8.5 high-emissions scenario analyzed (representing a "business as
 ## 7. Success Metrics & Implementation Roadmap
 
 **Phase 1: Immediate (Months 1-3)**
-- Target: Acquire 3 recommended assets (4, 1, 2)
-- KPI: Portfolio avg risk ≤2.30 (5% improvement)
-- Action: Structural surveys for Assets 6, 3, 7
+- Target: Acquire {len(recommended)} recommended assets ({rec_names})
+- KPI: Portfolio avg risk ≤{phase1_target:.2f} (5% improvement)
+- Action: Structural surveys for {high_risk_names}
 
 **Phase 2: Risk Mitigation (Months 4-12)**
-- Target: Reduce subsidence losses by 30% (£1,930 savings)
+- Target: Reduce subsidence losses by 30% (£{subsidence_savings:,.0f} savings)
 - KPI: Zero assets with unmitigated storm risk >5.0
 - Action: Implement wind hardening, subsidence monitoring
 
 **Phase 3: Optimization (Year 2)**
 - Target: Re-analyze portfolio under 2030 climate models
-- KPI: Maintain avg risk <2.5 through 2030
+- KPI: Maintain avg risk <{phase3_target:.2f} through 2030
 - Action: Scenario planning (SSP2-4.5 comparison)
 
 **Investment Return Framework:**
-- Acceptable risk-adjusted return: Risk score <3.0, Annual loss <£1,000
-- Premium pricing threshold: Risk score >2.8 requires 15%+ discount
-- Portfolio diversification target: <60% exposure to any single hazard
+- Acceptable risk-adjusted return: Risk score <{low_risk_threshold:.1f}, Annual loss <£{rec_max_loss:,.0f}
+- Premium pricing threshold: Risk score >{premium_threshold:.2f} requires 15%+ discount
+- Portfolio diversification target: <{diversification_target:.0f}% exposure to any single hazard
 
 **Climate X Platform Integration:**
 - Ongoing monitoring: Quarterly risk rescoring for all assets
-- Alert thresholds: Notify if any asset crosses 3.5 risk score
+- Alert thresholds: Notify if any asset crosses {portfolio.avg_risk + 1.0:.1f} risk score
 - Reporting: Automated TCFD-compliant climate risk disclosures"""

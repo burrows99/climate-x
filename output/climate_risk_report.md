@@ -13,12 +13,12 @@
 
 **Key Findings:**
 1. **Systemic Storm Risk:** 100% portfolio exposure requires comprehensive wind mitigation strategy
-2. **Financial Concentration:** Subsidence drives 100% of losses despite moderate risk scores
+2. **Financial Concentration:** Subsidence drives 71.8% of losses despite moderate risk scores
 3. **Investment Opportunity:** 3 low-risk assets (1.75-2.29) offer attractive risk-adjusted returns
 
 **Immediate Actions:**
-- Prioritize Assets 4, 1, 2 for acquisition (combined annual loss: £2,444)
-- Commission structural assessments for Assets 6, 3, 7 (storm vulnerabilities)
+- Prioritize Asset 4, Asset 1, Asset 2 for acquisition (combined annual loss: £2,444)
+- Commission structural assessments for Asset 6, Asset 7, Asset 3 (storm vulnerabilities)
 - Develop subsidence mitigation plan (£6,435 annual exposure)
 - Review insurance coverage for storm damage across all properties
 
@@ -40,9 +40,9 @@ Across the 8 successfully analyzed assets, climate risk is heavily concentrated 
 **Regional Exposure:**
 - London: 2 assets (25%)
 - South West (England): 2 assets (25%)
-- Scotland: 1 asset (12%)
-- West Midlands (England): 1 asset (12%)
 - North West (England): 1 asset (12%)
+- West Midlands (England): 1 asset (12%)
+- Scotland: 1 asset (12%)
 - Yorkshire and The Humber: 1 asset (12%)
 
 ## 2. Highest Risk Assets
@@ -163,9 +163,9 @@ Under the SSP5-8.5 high-emissions scenario analyzed (representing a "business as
 ## 7. Success Metrics & Implementation Roadmap
 
 **Phase 1: Immediate (Months 1-3)**
-- Target: Acquire 3 recommended assets (4, 1, 2)
+- Target: Acquire 3 recommended assets (Asset 4, Asset 1, Asset 2)
 - KPI: Portfolio avg risk ≤2.30 (5% improvement)
-- Action: Structural surveys for Assets 6, 3, 7
+- Action: Structural surveys for Asset 6, Asset 7, Asset 3
 
 **Phase 2: Risk Mitigation (Months 4-12)**
 - Target: Reduce subsidence losses by 30% (£1,930 savings)
@@ -174,15 +174,15 @@ Under the SSP5-8.5 high-emissions scenario analyzed (representing a "business as
 
 **Phase 3: Optimization (Year 2)**
 - Target: Re-analyze portfolio under 2030 climate models
-- KPI: Maintain avg risk <2.5 through 2030
+- KPI: Maintain avg risk <2.50 through 2030
 - Action: Scenario planning (SSP2-4.5 comparison)
 
 **Investment Return Framework:**
-- Acceptable risk-adjusted return: Risk score <3.0, Annual loss <£1,000
-- Premium pricing threshold: Risk score >2.8 requires 15%+ discount
+- Acceptable risk-adjusted return: Risk score <3.0, Annual loss <£893
+- Premium pricing threshold: Risk score >2.79 requires 15%+ discount
 - Portfolio diversification target: <60% exposure to any single hazard
 
 **Climate X Platform Integration:**
 - Ongoing monitoring: Quarterly risk rescoring for all assets
-- Alert thresholds: Notify if any asset crosses 3.5 risk score
+- Alert thresholds: Notify if any asset crosses 3.4 risk score
 - Reporting: Automated TCFD-compliant climate risk disclosures
