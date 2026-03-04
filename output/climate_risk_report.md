@@ -15,6 +15,16 @@
 - **Extreme Heat Days**: 5/8 assets (62%)
 - **Droughts**: 4/8 assets (50%)
 
+## 1b. Geographic Distribution
+
+**Regional Exposure:**
+- London: 2 assets
+- South West (England): 2 assets
+- Scotland: 1 asset
+- North West (England): 1 asset
+- West Midlands (England): 1 asset
+- Yorkshire and The Humber: 1 asset
+
 ## 2. Asset Risk Rankings
 
 **Highest Risk:**
@@ -25,12 +35,30 @@
 - **Asset 7** (Unknown): 2.62/5.0
   - Driven by storms: 5.00
 
+## 2b. Loss Breakdown by Hazard
+
+**Financial Impact by Hazard:**
+- Subsidence: £6,435.00 (71.8% of total)
+- Storms: £1,960.00 (21.9% of total)
+- Surface Flood: £406.14 (4.5% of total)
+- River Flood: £164.24 (1.8% of total)
+
 ## 3. Investment Recommendations
 
-**Recommended Assets** (Risk < 3.0):
-- **Asset 6**: 2.86/5.0, £953.98/year expected loss
-- **Asset 3**: 2.62/5.0, £1,788.24/year expected loss
-- **Asset 7**: 2.62/5.0, £1,258.17/year expected loss
+**Recommended for Investment** (Lowest Risk):
+- **Asset 4** (Unknown): 1.75/5.0
+  - Annual Loss: £770.00
+  - Low exposure to: river flood, surface flood
+- **Asset 1** (Unknown): 2.25/5.0
+  - Annual Loss: £893.00
+  - Low exposure to: river flood, surface flood
+- **Asset 2** (Unknown): 2.29/5.0
+  - Annual Loss: £781.00
+  - Low exposure to: river flood, surface flood
+
+**Avoid/Deprioritize** (Highest Risk):
+- **Asset 7**: 2.62/5.0 - High storms risk (5.00)
+- **Asset 6**: 2.86/5.0 - High storms risk (5.00)
 
 ## 4. Future Risk Trajectory
 

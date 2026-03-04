@@ -1,6 +1,6 @@
 """Report Generator - Solutions_Engineer_Challenge.md questions 1-6"""
 
-from typing import List
+from typing import List, Dict
 from models import Portfolio, Asset
 import config
 
@@ -8,7 +8,7 @@ import config
 class ReportGenerator:
     """Generates executive reports - Single Responsibility"""
     
-    def generate(self, portfolio: Portfolio) -> str:
+    def generate(self, portfolio: Portfolio, raw_responses: List[Dict] = None) -> str:
         """
         Create markdown report answering challenge questions:
         1. Risk concentrations? 2. Highest risk? 3. Recommendations?
@@ -18,7 +18,9 @@ class ReportGenerator:
             self._header(portfolio),
             self._executive_summary(portfolio),
             self._risk_concentration(portfolio),
+            self._geographic_distribution(portfolio, raw_responses),
             self._asset_rankings(portfolio),
+            self._loss_breakdown(portfolio, raw_responses),
             self._recommendations(portfolio),
             self._future_outlook(),
             self._assumptions(),
@@ -56,6 +58,25 @@ class ReportGenerator:
         
         return "\n".join(lines)
     
+    def _geographic_distribution(self, portfolio: Portfolio, raw_responses: List[Dict]) -> str:
+        """Geographic spread and regional concentrations"""
+        lines = ["## 1b. Geographic Distribution", ""]
+        
+        if not raw_responses:
+            return ""
+        
+        regions = {}
+        for resp in raw_responses:
+            if resp.get("success") and "data" in resp:
+                region = resp["data"].get("asset", {}).get("region", "Unknown")
+                regions[region] = regions.get(region, 0) + 1
+        
+        lines.append("**Regional Exposure:**")
+        for region, count in sorted(regions.items(), key=lambda x: x[1], reverse=True):
+            lines.append(f"- {region}: {count} asset{'s' if count > 1 else ''}")
+        
+        return "\n".join(lines)
+    
     def _asset_rankings(self, portfolio: Portfolio) -> str:
         """Question 2: Which assets are highest risk?"""
         lines = ["## 2. Asset Risk Rankings", ""]
@@ -70,17 +91,56 @@ class ReportGenerator:
         
         return "\n".join(lines)
     
+    def _loss_breakdown(self, portfolio: Portfolio, raw_responses: List[Dict]) -> str:
+        """Detailed loss analysis by hazard type"""
+        lines = ["## 2b. Loss Breakdown by Hazard", ""]
+        
+        if not raw_responses:
+            return ""
+        
+        # Aggregate losses by hazard type
+        hazard_losses = {}
+        for resp in raw_responses:
+            if resp.get("success") and "data" in resp:
+                losses = resp["data"].get("losses", {})
+                for key, value in losses.items():
+                    if key.endswith("_loss") and key != "physical_loss" and value:
+                        hazard_name = key.replace("_loss", "").replace("_", " ").title()
+                        hazard_losses[hazard_name] = hazard_losses.get(hazard_name, 0) + (value or 0)
+        
+        if hazard_losses:
+            sorted_losses = sorted(hazard_losses.items(), key=lambda x: x[1], reverse=True)
+            lines.append("**Financial Impact by Hazard:**")
+            for hazard, loss in sorted_losses[:5]:
+                if loss > 0:
+                    pct = (loss / portfolio.total_loss * 100) if portfolio.total_loss > 0 else 0
+                    lines.append(f"- {hazard}: £{loss:,.2f} ({pct:.1f}% of total)")
+        
+        return "\n".join(lines)
+    
     def _recommendations(self, portfolio: Portfolio) -> str:
-        """Question 3: Which assets would you recommend?"""
-        low_risk = [a for a in portfolio.assets if a.risk_score < 3.0]
+        """Question 3: Which assets would you recommend? Why?"""
+        # Sort by risk score (ascending) to find lowest risk
+        sorted_assets = sorted(portfolio.assets, key=lambda a: a.risk_score)
         
         lines = ["## 3. Investment Recommendations", ""]
-        if low_risk:
-            lines.append(f"**Recommended Assets** (Risk < 3.0):")
-            for asset in low_risk[:3]:
-                lines.append(f"- **{asset.name}**: {asset.risk_score:.2f}/5.0, £{asset.annual_loss:,.2f}/year expected loss")
-        else:
-            lines.append("No assets currently below 3.0 risk threshold. Consider additional risk mitigation.")
+        
+        # Recommend lowest risk assets with clear rationale
+        lines.append("**Recommended for Investment** (Lowest Risk):")
+        for asset in sorted_assets[:3]:
+            lines.append(f"- **{asset.name}** ({asset.location}): {asset.risk_score:.2f}/5.0")
+            lines.append(f"  - Annual Loss: £{asset.annual_loss:,.2f}")
+            
+            # Find low-scoring hazards as positive factors
+            low_hazards = [h for h in asset.hazards if h.score < 2.0]
+            if low_hazards:
+                lines.append(f"  - Low exposure to: {', '.join(h.type.replace('_', ' ') for h in low_hazards[:2])}")
+        
+        lines.append("")
+        lines.append("**Avoid/Deprioritize** (Highest Risk):")
+        for asset in sorted_assets[-2:]:
+            top_hazard = max(asset.hazards, key=lambda h: h.score) if asset.hazards else None
+            lines.append(f"- **{asset.name}**: {asset.risk_score:.2f}/5.0 - High {top_hazard.type.replace('_', ' ')} risk ({top_hazard.score:.2f})" if top_hazard else f"- **{asset.name}**: {asset.risk_score:.2f}/5.0")
         
         return "\n".join(lines)
     

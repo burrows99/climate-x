@@ -84,7 +84,7 @@ def main():
     
     # Generate report
     logger.info("\nGenerating executive report...")
-    report = reporter.generate(portfolio)
+    report = reporter.generate(portfolio, raw_responses)
     
     # Save outputs
     with open(config.REPORT_FILE, "w") as f:
