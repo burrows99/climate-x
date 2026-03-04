@@ -29,13 +29,28 @@ class RiskAnalyzer:
         losses = response_data.get("losses", {})
         annual_loss = losses.get("physical_loss", 0.0)  # Actual field name from API
         
-        # Build location string
+        # Build location string with fallback to region or coordinates
         asset_info = response_data.get("asset", {})
-        location_parts = [
-            asset_info.get("city", ""),
-            asset_info.get("postcode", "")
-        ]
-        location = ", ".join([p for p in location_parts if p]) or "Unknown"
+        city = asset_info.get("city")
+        postcode = asset_info.get("postcode")
+        region = asset_info.get("region", "")
+        lat = asset_info.get("latitude")
+        lon = asset_info.get("longitude")
+        
+        # Priority: city+postcode > postcode > city > region+coordinates > coordinates only
+        if city and postcode:
+            location = f"{city}, {postcode}"
+        elif postcode:
+            location = postcode
+        elif city:
+            location = city
+        elif region and lat and lon:
+            # Include coordinates with region for better identification
+            location = f"{region} ({lat:.4f}, {lon:.4f})"
+        elif lat and lon:
+            location = f"{lat:.4f}, {lon:.4f}"
+        else:
+            location = "Unspecified location"
         
         return Asset(
             name=asset_name,

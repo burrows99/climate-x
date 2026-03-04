@@ -40,9 +40,9 @@ Across the 8 successfully analyzed assets, climate risk is heavily concentrated 
 **Regional Exposure:**
 - London: 2 assets (25%)
 - South West (England): 2 assets (25%)
-- North West (England): 1 asset (12%)
 - West Midlands (England): 1 asset (12%)
 - Scotland: 1 asset (12%)
+- North West (England): 1 asset (12%)
 - Yorkshire and The Humber: 1 asset (12%)
 
 ## 2. Highest Risk Assets
@@ -57,12 +57,12 @@ The three highest-risk assets in the portfolio (risk score range: 1.75-2.86 on 1
    - Expected annual loss: £953.98
    - 18.2% above portfolio average (2.42)
 
-**2. Asset 3** (Unknown): **2.62/5.0**
+**2. Asset 3** (South West (England) (51.4545, -2.5879)): **2.62/5.0**
    - Primary driver: Storms (risk score: 5.00)
    - Expected annual loss: £1,788.24
    - 8.6% above portfolio average (2.42)
 
-**3. Asset 7** (Unknown): **2.62/5.0**
+**3. Asset 7** (London (51.5004, -0.1425)): **2.62/5.0**
    - Primary driver: Storms (risk score: 5.00)
    - Expected annual loss: £1,258.17
    - 8.6% above portfolio average (2.42)
@@ -85,19 +85,19 @@ The three highest-risk assets in the portfolio (risk score range: 1.75-2.86 on 1
 
 **Recommended Assets (Priority Order):**
 
-**1. Asset 4** (Unknown)
+**1. Asset 4** (Scotland (55.9533, -3.1883))
    - Risk Score: **1.75/5.0** (Low risk)
    - Annual Loss: £770.00
    - 27.6% below portfolio average risk
    - Strengths: Minimal exposure to river flood, surface flood, coastal flood
 
-**2. Asset 1** (Unknown)
+**2. Asset 1** (London (51.5074, -0.1278))
    - Risk Score: **2.25/5.0** (Moderate-low risk)
    - Annual Loss: £893.00
    - 6.9% below portfolio average risk
    - Strengths: Minimal exposure to river flood, surface flood, coastal flood
 
-**3. Asset 2** (Unknown)
+**3. Asset 2** (North West (England) (53.4808, -2.2426))
    - Risk Score: **2.29/5.0** (Moderate-low risk)
    - Annual Loss: £781.00
    - 5.4% below portfolio average risk
